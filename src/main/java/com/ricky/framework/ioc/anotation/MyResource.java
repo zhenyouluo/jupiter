@@ -1,4 +1,4 @@
-package com.ricky.java.ioc.anotation;
+package com.ricky.framework.ioc.anotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

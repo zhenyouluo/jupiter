@@ -1,4 +1,4 @@
-package com.ricky.java.ioc.processor;
+package com.ricky.framework.ioc.processor;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import com.ricky.java.ioc.processor.AnnotationDetector.AnnotationFilter;
+import com.ricky.framework.ioc.processor.AnnotationDetector.AnnotationFilter;
 
 public class ClassFileIterator {
 	

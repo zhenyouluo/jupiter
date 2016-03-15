@@ -1,6 +1,6 @@
-package com.ricky.java.ioc.dao;
+package com.ricky.framework.ioc.dao;
 
-import com.ricky.java.ioc.anotation.MyBean;
+import com.ricky.framework.ioc.anotation.MyBean;
 
 @MyBean(id="oracleUserDAOImpl")
 public class OracleUserDAOImpl extends UserDAO {

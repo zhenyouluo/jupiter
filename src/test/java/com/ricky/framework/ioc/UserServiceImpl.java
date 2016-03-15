@@ -1,8 +1,8 @@
-package com.ricky.java.ioc;
+package com.ricky.framework.ioc;
 
-import com.ricky.java.ioc.anotation.MyBean;
-import com.ricky.java.ioc.anotation.MyResource;
-import com.ricky.java.ioc.dao.UserDAO;
+import com.ricky.framework.ioc.anotation.MyBean;
+import com.ricky.framework.ioc.anotation.MyResource;
+import com.ricky.framework.ioc.dao.UserDAO;
 
 @MyBean(id="userServiceImpl")
 public class UserServiceImpl implements UserService {

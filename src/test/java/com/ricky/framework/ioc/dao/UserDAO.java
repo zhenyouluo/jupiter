@@ -1,4 +1,4 @@
-package com.ricky.java.ioc.dao;
+package com.ricky.framework.ioc.dao;
 
 public abstract class UserDAO {
 	

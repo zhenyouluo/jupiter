@@ -1,4 +1,4 @@
-package com.ricky.java.ioc;
+package com.ricky.framework.ioc;
 
 public interface UserService {
 

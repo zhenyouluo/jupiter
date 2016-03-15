@@ -1,4 +1,4 @@
-package com.ricky.java.ioc;
+package com.ricky.framework.ioc;
 
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -9,13 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.ricky.java.ioc.anotation.MyBean;
-import com.ricky.java.ioc.anotation.MyResource;
-import com.ricky.java.ioc.processor.AnnotationDetector;
+import com.ricky.framework.ioc.anotation.MyBean;
+import com.ricky.framework.ioc.anotation.MyResource;
+import com.ricky.framework.ioc.processor.AnnotationDetector;
 
 public class MyApplicationContext {
 
-	private static MyApplicationContext myApplication;
+	private volatile static MyApplicationContext myApplication;
 	
 	private Map<String,Object> globalBeanMap = new HashMap<String, Object>();
 	

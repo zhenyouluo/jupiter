@@ -1,4 +1,4 @@
-package com.ricky.java.ioc.processor;
+package com.ricky.framework.ioc.processor;
 
 import java.io.File;
 import java.io.IOException;
