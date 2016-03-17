@@ -1,8 +1,6 @@
 package com.ricky.framework.ioc;
 
-import java.beans.IntrospectionException;
 import java.io.FileNotFoundException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,8 +9,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.dom4j.DocumentException;
 
 import com.ricky.framework.ioc.model.BeanDefinition;
-import com.ricky.framework.ioc.util.Constants;
-import com.ricky.framework.ioc.xml.BeanXmlConfigParser;
+import com.ricky.framework.ioc.parser.BeanXmlConfigParser;
+import com.ricky.framework.ioc.util.BeanScope;
+import com.ricky.framework.ioc.util.ReflectionUtils;
 
 public class MyClassPathXmlApplicationContext extends ApplicationContext {
 
@@ -20,9 +19,14 @@ public class MyClassPathXmlApplicationContext extends ApplicationContext {
 	protected Map<String, Object> beanInstanceMap = new HashMap<String, Object>();
 	
 	public MyClassPathXmlApplicationContext(String xmlFilePath) {
+		
+		System.out.println("****************container init begin****************");
+		
 		readXml(xmlFilePath);
 		initBeans();
 		injectBeans();
+		
+		System.out.println("****************container init end****************");
 	}
 
 	private void readXml(String xmlFilePath) {
@@ -33,9 +37,9 @@ public class MyClassPathXmlApplicationContext extends ApplicationContext {
 		try {
 			bean_def_list = beanXmlConfigParser.parse(xmlFilePath);
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			throw new RuntimeException("not found bean xml, file->"+xmlFilePath, e);
 		} catch (DocumentException e) {
-			e.printStackTrace();
+			throw new RuntimeException("bean xml format error, file->"+xmlFilePath, e);
 		}
 
 		for (BeanDefinition beanDefinition : bean_def_list) {
@@ -59,15 +63,13 @@ public class MyClassPathXmlApplicationContext extends ApplicationContext {
 		for (Map.Entry<String, BeanDefinition> me : beanDefinitionMap.entrySet()) {
 
 			BeanDefinition bd = me.getValue();
-			try {
-				Object bean = createBean(bd);
-				beanInstanceMap.put(bd.getId(), bean);
-			} catch (InstantiationException e) {
-				throw new IllegalArgumentException("bean class init error,class->"+bd.getClassName(), e);
-			} catch (IllegalAccessException e) {
-				throw new IllegalArgumentException("bean class no access permission,class->"+bd.getClassName(), e);
-			} catch (ClassNotFoundException e) {
-				throw new IllegalArgumentException("bean class is not found,class->"+bd.getClassName(), e);
+			if(StringUtils.isEmpty(bd.getScope()) || bd.getScope().equals(BeanScope.SINGLETON)){
+				try {
+					Object bean = createBean(bd);
+					beanInstanceMap.put(bd.getId(), bean);
+				} catch (Exception e) {
+					throw new IllegalArgumentException("create bean error,class->"+bd.getClassName(), e);
+				}
 			}
 		}
 	}
@@ -82,14 +84,8 @@ public class MyClassPathXmlApplicationContext extends ApplicationContext {
                 
             	Object bean = beanInstanceMap.get(beanDefinition.getId());  
                 try {
-                    injectBeanDependency(bean, beanDefinition);
-                } catch (IllegalAccessException e) {
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					e.printStackTrace();
-				} catch (IntrospectionException e) {
+                	injectBeanProperties(bean, beanDefinition);
+                } catch (Exception e) {
 					e.printStackTrace();
 				}
             }  
@@ -98,36 +94,29 @@ public class MyClassPathXmlApplicationContext extends ApplicationContext {
 	
 	@Override
 	public Object getBean(String id) {
-
-		if (id == null || "".equals(id)) {
+		
+//		System.out.println("get bean by id:"+id);
+		
+		if (StringUtils.isEmpty(id)) {
 			return null;
 		}
 
 		if (beanDefinitionMap.containsKey(id)) {
 			
 			BeanDefinition bd = beanDefinitionMap.get(id);
-			String scope = bd.getScope();
 			
-			Object bean = beanInstanceMap.get(id);
+			if(StringUtils.isEmpty(bd.getScope()) || bd.getScope().equals(BeanScope.SINGLETON)){
+				
+				return beanInstanceMap.get(id);
+			}
 			
-			if(Constants.BEAN_SCOPE_PROTOTYPE.equals(scope)){
-				try {
-					bean = createBean(bd);
-					injectBeanDependency(bean, bd);
-					beanInstanceMap.put(bd.getId(), bean);
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				} catch (InstantiationException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					e.printStackTrace();
-				} catch (IntrospectionException e) {
-					e.printStackTrace();
-				}
+			Object bean = null;
+			try {
+				bean = createBean(bd);
+				injectBeanProperties(bean, bd);
+				beanInstanceMap.put(bd.getId(), bean);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 			
 			return bean;
@@ -135,9 +124,42 @@ public class MyClassPathXmlApplicationContext extends ApplicationContext {
 		throw new IllegalArgumentException("unknown bean, id->" + id);
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T getBean(Class<T> clazz) {
+		
+//		System.out.println("get bean by type:"+clazz.getName());
+		
+		for(Map.Entry<String, BeanDefinition> me : beanDefinitionMap.entrySet()){
+			
+			BeanDefinition bd = me.getValue();
+			Class<?> beanClass = null;
+			try {
+				beanClass = ReflectionUtils.loadClass(bd.getClassName());
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			
+			if(beanClass!=null && clazz.isAssignableFrom(beanClass)){
+//				System.out.println("find bean by type, class->"+clazz.getName());
+				return (T) getBean(bd.getId());
+			}
+		}
+		
+		return null;
+	}
+
+	@Override
+	protected BeanDefinition getBeanDefinition(String id) {
+		
+		return beanDefinitionMap.get(id);
+	}
+
 	@Override
 	public void close() {
 
+		System.out.println("container close...");
+		
 		// release resource
 		beanDefinitionMap.clear();
 		beanDefinitionMap = null;

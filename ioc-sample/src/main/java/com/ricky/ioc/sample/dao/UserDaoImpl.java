@@ -21,4 +21,8 @@ public class UserDaoImpl implements UserDao{
 		
 		return 0;
 	}
+	
+	public void init(){
+		System.out.println("UserDaoImpl init...");
+	}
 }

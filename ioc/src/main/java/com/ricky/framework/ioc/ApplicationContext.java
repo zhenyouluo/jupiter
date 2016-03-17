@@ -10,60 +10,56 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.ricky.framework.ioc.model.BeanDefinition;
 import com.ricky.framework.ioc.model.PropertyDefinition;
+import com.ricky.framework.ioc.util.ReflectionUtils;
 
 public abstract class ApplicationContext {
 
 	public abstract Object getBean(String id);
 	
+	public abstract <T> T getBean(Class<T> clazz);
+	
 	public abstract void close();
 	
-	/**create bean instance*/
-	protected Object createBean(BeanDefinition bd) throws ClassNotFoundException, InstantiationException, IllegalAccessException{
+	protected abstract BeanDefinition getBeanDefinition(String id);
+	
+	protected Object createBean(BeanDefinition bd) {
 		
-		Class<?> clazz = Class.forName(bd.getClassName());
-		Object bean = clazz.newInstance();
-		if(StringUtils.isNotEmpty(bd.getInitMethodName())){
-			try {
-				Method method = clazz.getDeclaredMethod(bd.getInitMethodName());
-				if(method!=null){
-					method.setAccessible(true);
-					method.invoke(bean);
-				}
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
+		try {
+			Object bean = ReflectionUtils.newInstance(bd.getClassName());
+			if(StringUtils.isNotEmpty(bd.getInitMethodName())){
+				ReflectionUtils.invokeMethod(bean, bd.getInitMethodName());
 			}
+			
+			return bean;
+		} catch (ClassNotFoundException | InstantiationException
+				| IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException | NoSuchMethodException e) {
+			throw new RuntimeException("create bean error, class->"+bd.getClassName(), e);
 		}
-		return bean;
 	}
 	
-	protected boolean injectBeanDependency(Object bean, BeanDefinition beanDefinition) throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+	protected void injectBeanProperties(Object bean, BeanDefinition beanDefinition){
         
-		boolean flag = false;
-		//得到被注入bean的所有的属性  
-        PropertyDescriptor[] ps = Introspector.getBeanInfo(bean.getClass()).getPropertyDescriptors();  
-        //得到所有的注入bean属性  
-        for(PropertyDefinition propertyDefinition : beanDefinition.getProperties()){  
-            
-        	for(PropertyDescriptor propertyDescriptor:ps){
-        		
-                if(propertyDescriptor.getName().equals(propertyDefinition.getName())){  
-                    
-                	Method setter = propertyDescriptor.getWriteMethod();//获取set方法  
-                	setter.setAccessible(true);//得到private权限  
-                    //注入属性  
-                    setter.invoke(bean, getBean(propertyDefinition.getRef()));  
-                    flag = true;
-                    break;
-                }
-            }
-        }
-        
-        return flag;
+		try {
+			PropertyDescriptor[] ps = Introspector.getBeanInfo(bean.getClass()).getPropertyDescriptors();  
+			
+			for(PropertyDefinition propertyDefinition : beanDefinition.getProperties()){  
+			    
+				for(PropertyDescriptor propertyDescriptor:ps){
+					
+			        if(propertyDescriptor.getName().equals(propertyDefinition.getName())){  
+			            
+			        	Method setter = propertyDescriptor.getWriteMethod(); 
+			        	setter.setAccessible(true); 
+			            
+			            setter.invoke(bean, getBean(propertyDefinition.getRef()));  
+			        }
+			    }
+			}
+		} catch (SecurityException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException
+				| IntrospectionException e) {
+			throw new RuntimeException("inject bean properties error", e);
+		}
 	}
 }

@@ -1,4 +1,4 @@
-package com.ricky.framework.ioc.xml;
+package com.ricky.framework.ioc.parser;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
