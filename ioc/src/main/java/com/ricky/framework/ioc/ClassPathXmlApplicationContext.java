@@ -13,12 +13,12 @@ import com.ricky.framework.ioc.parser.BeanXmlConfigParser;
 import com.ricky.framework.ioc.util.BeanScope;
 import com.ricky.framework.ioc.util.ReflectionUtils;
 
-public class MyClassPathXmlApplicationContext extends ApplicationContext {
+public class ClassPathXmlApplicationContext extends ApplicationContext {
 
 	private Map<String, BeanDefinition> beanDefinitionMap = new HashMap<String, BeanDefinition>();
 	protected Map<String, Object> beanInstanceMap = new HashMap<String, Object>();
 	
-	public MyClassPathXmlApplicationContext(String xmlFilePath) {
+	public ClassPathXmlApplicationContext(String xmlFilePath) {
 		
 		System.out.println("****************container init begin****************");
 		

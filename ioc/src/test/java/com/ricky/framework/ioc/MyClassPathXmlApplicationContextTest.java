@@ -6,7 +6,7 @@ package com.ricky.framework.ioc;
 public class MyClassPathXmlApplicationContextTest {
     
 	public static void main(String[] args) {
-		MyClassPathXmlApplicationContext classPathXmlApplicationContext = new MyClassPathXmlApplicationContext("beans.xml");
+		ClassPathXmlApplicationContext classPathXmlApplicationContext = new ClassPathXmlApplicationContext("beans.xml");
 		classPathXmlApplicationContext.getBean("");
 	}
 }
