@@ -1,4 +1,4 @@
-package com.bytebeats.jupiter.util;
+package com.bytebeats.jupiter.ioc.util;
 
 import java.io.Closeable;
 import java.io.IOException;

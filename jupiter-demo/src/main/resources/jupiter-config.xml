@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"  
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"     
-    xsi:schemaLocation="http://www.springframework.org/schema/beans  
-           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">  
-    
+<beans>
+
+    <jupiter base-package="com.bytebeats.jupiter" />
+
     <bean id="userDao" class="com.bytebeats.jupiter.demo.dao.UserDaoImpl" scope="singleton" init-method="init" ></bean>
     
     <bean id="userService" class="com.bytebeats.jupiter.demo.service.UserServiceImpl">

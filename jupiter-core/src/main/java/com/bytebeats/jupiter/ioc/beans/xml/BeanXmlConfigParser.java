@@ -1,4 +1,4 @@
-package com.bytebeats.jupiter.parser;
+package com.bytebeats.jupiter.ioc.beans.xml;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;

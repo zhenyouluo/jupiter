@@ -1,4 +1,4 @@
-package com.bytebeats.jupiter.util;
+package com.bytebeats.jupiter.ioc.util;
 
 /**
  * ${DESCRIPTION}

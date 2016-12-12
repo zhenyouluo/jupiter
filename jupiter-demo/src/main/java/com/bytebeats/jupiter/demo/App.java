@@ -13,7 +13,7 @@ public class App {
 
 	public static void main(String[] args) {
 
-		ApplicationContext ctx = new ClassPathXmlApplicationContext("beans.xml");
+		ApplicationContext ctx = new ClassPathXmlApplicationContext("jupiter-config.xml");
 
 		//通过id获取Bean
 		UserController userController = (UserController) ctx.getBean("userController");
